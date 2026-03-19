@@ -49,7 +49,7 @@ phase = 0
 
 # フェーズ0
 print("=== Phase0 ===")
-phase = phase0.phase0_run(state)  # 内部で正常終了するまでリトライ
+phase = phase0.phase0_fall_detection(state)  # 内部で正常終了するまでリトライ
 
 # フェーズ1
 print("=== Phase1 ===")
