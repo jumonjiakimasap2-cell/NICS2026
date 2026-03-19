@@ -3,7 +3,7 @@ import time
 import RPi.GPIO as GPIO
 
 # フェーズモジュール
-import p0_presen as phase0
+import p0_fall as phase0
 import p1_releaseA as phase1
 import p2_dispara as phase2
 import p3_run as phase3
