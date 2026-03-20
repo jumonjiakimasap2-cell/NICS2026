@@ -8,7 +8,7 @@ import RPi.GPIO as GPIO
 
 import BNO055
 import BMP085
-import MicropyGPS
+import micropyGPS
 
 # =====================
 # GPIO
