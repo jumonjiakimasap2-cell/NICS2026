@@ -167,7 +167,7 @@ def phase1():
     print("Phase1: パラ分離")
 
     GPIO.output(HEATING_PIN, GPIO.HIGH)
-    time.sleep(5)
+    time.sleep(3)
     GPIO.output(HEATING_PIN, GPIO.LOW)
 
     phase = 2
