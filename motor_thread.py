@@ -1,5 +1,7 @@
-def motor_thread():
-    global direction
+import RPi.GPIO as GPIO
+import time
+
+def motor_thread(get_direction):
 
     # ===== ピン設定 =====
     PWMA = 18
