@@ -6,9 +6,9 @@ import datetime
 import csv
 import RPi.GPIO as GPIO
 
-from libs import BNO055
-from libs import BMP085
-from libs.micropyGPS import MicropyGPS
+import BNO055
+import BMP085
+import MicropyGPS
 
 # =====================
 # GPIO
