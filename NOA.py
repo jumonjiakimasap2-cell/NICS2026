@@ -257,7 +257,7 @@ def main():
 
     setup()
 
-    threading.Thread(target=motor_thread, daemon=True).start()
+    # threading.Thread(target=motor_thread, daemon=True).start()
 
     while True:
         if phase == 0:
