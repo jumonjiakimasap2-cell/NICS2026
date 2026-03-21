@@ -236,7 +236,7 @@ def motor_thread():
 
     while True:
        
-       if not motor_enabled:
+        if not motor_enabled:
            time.sleep(0.05)
            continue
 
