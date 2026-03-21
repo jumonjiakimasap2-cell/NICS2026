@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-heating_wire = 26
+heating_wire = 17
 print("start")
 
 GPIO.setmode(GPIO.BCM)
@@ -16,3 +16,6 @@ time.sleep(3)
 GPIO.output(heating_wire, GPIO.LOW)
 
 print("done")
+
+finally:
+    GPIO.cleanup()
