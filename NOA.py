@@ -7,7 +7,7 @@ import csv
 import RPi.GPIO as GPIO
 
 import BNO055
-import BMP085
+
 
 
 # =====================
@@ -21,7 +21,7 @@ HEATING_PIN = 17
 # センサ
 # =====================
 bmx = BNO055.BNO055()
-bmp = BMP085.BMP085()
+
 
 # =====================
 # 状態
@@ -38,21 +38,7 @@ angle = 0.0
 azimuth = 0.0
 fall = 0.0
 alt = 0.0
-# =====================
-# BMP180 平均化
-# =====================
-def get_altitude():
-    values = []
-    for _ in range(5):
-        try:
-            values.append(bmp.read_altitude())
-        except:
-            pass
-        time.sleep(0.03)
 
-    if values:
-        return sum(values) / len(values)
-    return 0
 
 # =====================
 # センサ
@@ -99,13 +85,12 @@ def phase0():
 
     while True:
         getBmxData()
-        current_alt = get_altitude()
 
         # 落下検知
         if fall > 25:
             fall_count += 1
 
-        if fall_count >= 8 and landed_count >= 5:
+        if fall_count >= 8:
             print("着地検知")
             time.sleep(5)
             break
@@ -188,27 +173,7 @@ def setup():
 
     bmx.setUp()
 
-# =====================
-# GPSスレッド
-# =====================
-def GPS_thread():
-    global lat, lng, gps_detect
 
-    s = serial.Serial("/dev/serial0", 115200)
-    gps = MicropyGPS(9, "dd")
-
-    while True:
-        line = s.readline().decode("utf-8", errors="ignore")
-
-        if len(line) < 10 or line[0] != "$":
-            continue
-
-        for c in line:
-            gps.update(c)
-
-        lat = gps.latitude[0]
-        lng = gps.longitude[0]
-        gps_detect = 1 if lat != 0 else 0
 
 def motor_thread():
     global motor_enabled
@@ -237,8 +202,8 @@ def motor_thread():
     while True:
        
         if not motor_enabled:
-           time.sleep(0.05)
-           continue
+            time.sleep(0.05)
+            continue
 
         # ===== 停止 =====
         if direction == 360:
@@ -291,7 +256,6 @@ def main():
 
     setup()
 
-    threading.Thread(target=GPS_thread, daemon=True).start()
     threading.Thread(target=motor_thread, daemon=True).start()
 
     while True:
