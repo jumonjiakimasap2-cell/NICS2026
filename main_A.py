@@ -16,7 +16,7 @@ import motor_thread
 # =====================
 TRIG = 23
 ECHO = 24
-HEATING_PIN = 26
+HEATING_PIN = 17
 
 # =====================
 # 目標
