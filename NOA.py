@@ -105,10 +105,6 @@ def phase0():
         if fall > 25:
             fall_count += 1
 
-        # 着地検知（気圧）
-        if current_alt < 5:
-            landed_count += 1
-
         if fall_count >= 8 and landed_count >= 5:
             print("着地検知")
             time.sleep(5)
