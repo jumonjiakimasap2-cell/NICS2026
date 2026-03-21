@@ -166,6 +166,7 @@ def phase1():
     phase = 2
 
 def setup():
+    GPIO.cleanup()
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(TRIG, GPIO.OUT)
     GPIO.setup(ECHO, GPIO.IN)
