@@ -7,7 +7,7 @@ import csv
 import RPi.GPIO as GPIO
 
 import BNO055
-import micropyGPS
+from micropyGPS import MicropyGPS
 
 # =====================
 # GPIO
@@ -320,7 +320,7 @@ def GPS_thread():
     global lat, lng, gps_detect
 
     s = serial.Serial("/dev/serial0", 115200)
-    gps = micropyGPS(9, "dd")
+    gps = MicropyGPS(9, "dd")
 
     while True:
         line = s.readline().decode("utf-8", errors="ignore")
