@@ -31,12 +31,12 @@ try:
     print("右バック・左前進（5秒）")
 
     # ===== 右モーター：バック =====
-    GPIO.output(AIN1, GPIO.LOW)
-    GPIO.output(AIN2, GPIO.HIGH)
+    GPIO.output(AIN1, GPIO.HIGH)
+    GPIO.output(AIN2, GPIO.LOW)
 
     # ===== 左モーター：前進 =====
-    GPIO.output(BIN1, GPIO.HIGH)
-    GPIO.output(BIN2, GPIO.LOW)
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.HIGH)
 
     time.sleep(5)
 
