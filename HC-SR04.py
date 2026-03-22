@@ -3,6 +3,7 @@ import RPi.GPIO as GPIO
 TRIG = 23
 ECHO = 24
 
+GPIO.setmode(GPIO.BCM)
 GPIO.setup(TRIG, GPIO.OUT)
 GPIO.setup(ECHO, GPIO.IN)
 
