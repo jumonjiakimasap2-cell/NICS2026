@@ -1,3 +1,5 @@
+import RPi.GPIO as GPIO
+
 TRIG = 23
 ECHO = 24
 
