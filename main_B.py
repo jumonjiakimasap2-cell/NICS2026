@@ -320,7 +320,7 @@ def GPS_thread():
     global lat, lng, gps_detect
 
     s = serial.Serial("/dev/serial0", 115200)
-    gps = MicropyGPS(9, "dd")
+    gps = micropyGPS(9, "dd")
 
     while True:
         line = s.readline().decode("utf-8", errors="ignore")
@@ -364,9 +364,6 @@ def motor_thread():
 
     while True:
        
-        if not motor_enabled:
-            time.sleep(0.05)
-            continue
 
         # ===== 停止 =====
         if direction == 360:
