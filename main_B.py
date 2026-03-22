@@ -275,7 +275,7 @@ def phase4():
 def GPS_thread():
     global lat, lng, gps_detect
 
-    s = serial.Serial("/dev/serial0", 115200)
+    s = serial.Serial("/dev/serial0", 9600)
     gps = MicropyGPS(9, "dd")
 
     while True:
