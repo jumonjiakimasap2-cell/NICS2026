@@ -181,12 +181,12 @@ def phase2():
     pwmA.start(100)
     pwmB.start(100)
 
-    GPIO.output(AIN1, GPIO.LOW)
-    GPIO.output(AIN2, GPIO.HIGH)
+    GPIO.output(AIN1, GPIO.HIGH)
+    GPIO.output(AIN2, GPIO.LOW)
 
     # 左前進
-    GPIO.output(BIN1, GPIO.LOW)
-    GPIO.output(BIN2, GPIO.HIGH)
+    GPIO.output(BIN1, GPIO.HIGH)
+    GPIO.output(BIN2, GPIO.LOW)
 
     time.sleep(5)
 
@@ -202,6 +202,8 @@ def phase2():
     pwmB.stop()
 
     print("Phase2終了")
+
+    phase = 3
 
     
 
