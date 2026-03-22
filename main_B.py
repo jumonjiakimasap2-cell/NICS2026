@@ -8,14 +8,13 @@ import RPi.GPIO as GPIO
 
 import BNO055
 import BMP085
-import MicropyGPS
+import micropyGPS
 
 # =====================
 # GPIO
 # =====================
 TRIG = 23
 ECHO = 24
-HEATING_PIN = 26
 
 # =====================
 # 目標
@@ -141,11 +140,7 @@ def phase0():
         if fall > 25:
             fall_count += 1
 
-        # 着地検知（気圧）
-        if current_alt < 5:
-            landed_count += 1
-
-        if fall_count >= 8 and landed_count >= 5:
+        if fall_count >= 8:
             print("着地検知")
             time.sleep(5)
             break
@@ -174,19 +169,6 @@ def phase1():
     BIN1 = 9
     BIN2 = 11
 
-    # ===== 初期化（setupではなくここでやる）=====
-    GPIO.setup(PWMA, GPIO.OUT)
-    GPIO.setup(AIN1, GPIO.OUT)
-    GPIO.setup(AIN2, GPIO.OUT)
-    GPIO.setup(PWMB, GPIO.OUT)
-    GPIO.setup(BIN1, GPIO.OUT)
-    GPIO.setup(BIN2, GPIO.OUT)
-
-    pwmA = GPIO.PWM(PWMA, 50)
-    pwmB = GPIO.PWM(PWMB, 50)
-
-    pwmA.start(100)
-    pwmB.start(100)
 
     # ===== 動作 =====
     print("回転開始")
@@ -372,13 +354,80 @@ def GPS_thread():
         gps_detect = 1 if lat != 0 else 0
 
 # =====================
-# モータ（ダミー）
+# モータ
 # =====================
 def motor_thread():
-    global direction
+    global motor_enabled
+
+    # ===== ピン設定 =====
+    PWMA = 18
+    AIN1 = 8
+    AIN2 = 25
+    PWMB = 10
+    BIN1 = 9
+    BIN2 = 11
+
+    GPIO.setup(PWMA, GPIO.OUT)
+    GPIO.setup(AIN1, GPIO.OUT)
+    GPIO.setup(AIN2, GPIO.OUT)
+    GPIO.setup(PWMB, GPIO.OUT)
+    GPIO.setup(BIN1, GPIO.OUT)
+    GPIO.setup(BIN2, GPIO.OUT)
+
+    pwmA = GPIO.PWM(PWMA, 50)
+    pwmB = GPIO.PWM(PWMB, 50)
+
+    pwmA.start(80)
+    pwmB.start(80)
+
     while True:
-        print("DIR:", direction)
-        time.sleep(0.1)
+       
+        if not motor_enabled:
+            time.sleep(0.05)
+            continue
+
+        # ===== 停止 =====
+        if direction == 360:
+            GPIO.output(AIN1, 0)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 0)
+            GPIO.output(BIN2, 0)
+
+        # ===== 前進 =====
+        elif direction == -360:
+            GPIO.output(AIN1, 1)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 1)
+            GPIO.output(BIN2, 0)
+
+        # ===== 左回転 =====
+        elif direction == 500:
+            GPIO.output(AIN1, 1)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 0)
+            GPIO.output(BIN2, 1)
+
+        # ===== 右回転 =====
+        elif direction == 600:
+            GPIO.output(AIN1, 0)
+            GPIO.output(AIN2, 1)
+            GPIO.output(BIN1, 1)
+            GPIO.output(BIN2, 0)
+
+        # ===== 微調整（弱回転）=====
+        elif direction > 0:
+            GPIO.output(AIN1, 1)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 0)
+            GPIO.output(BIN2, 1)
+
+        elif direction < 0:
+            GPIO.output(AIN1, 0)
+            GPIO.output(AIN2, 1)
+            GPIO.output(BIN1, 1)
+            GPIO.output(BIN2, 0)
+
+        time.sleep(0.05)
 
 # =====================
 # Setup
