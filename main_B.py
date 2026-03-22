@@ -321,7 +321,6 @@ def GPS_thread():
 # モータ
 # =====================
 def motor_thread():
-    global motor_enabled
 
     # ===== ピン設定 =====
     PWMA = 18
