@@ -175,6 +175,12 @@ def phase2():
     BIN1 = 9
     BIN2 = 11
 
+    pwmA = GPIO.PWM(PWMA, 50)
+    pwmB = GPIO.PWM(PWMB, 50)
+
+    pwmA.start(100)
+    pwmB.start(100)
+
     GPIO.output(AIN1, GPIO.LOW)
     GPIO.output(AIN2, GPIO.HIGH)
 
