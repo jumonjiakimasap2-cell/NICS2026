@@ -188,11 +188,37 @@ def phase2():
     SCAN_STEP = 30
     TURN_SPEED = 400
     ANGLE_TOL = 8
+    PWMA = 18
+    AIN1 = 8
+    AIN2 = 25
+    PWMB = 10
+    BIN1 = 9
+    BIN2 = 11
+
 
     scan_data = []
     start_yaw = get_yaw()
 
     print("Phase2: 回避")
+
+    GPIO.output(AIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.HIGH)
+
+    # 左前進
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.HIGH)
+
+    time.sleep(5)
+
+    # ===== 停止 =====
+    print("停止")
+
+    GPIO.output(AIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.LOW)
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.LOW)
+
+    print("フェーズ2　終了")
 
     phase = 3
     return
