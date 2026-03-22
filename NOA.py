@@ -107,7 +107,7 @@ def phase0():
 # Phase1
 # =====================
 def phase1():
-    global phase,motor_enabled
+    global phase,motor_enabled,MPW
     motor_enabled = False
 
     print("Phase1: 特殊動作（右バック・左前進 5秒）")
@@ -132,8 +132,8 @@ def phase1():
     pwmA = GPIO.PWM(PWMA, 50)
     pwmB = GPIO.PWM(PWMB, 50)
 
-    pwmA.start(100)
-    pwmB.start(100)
+    pwmA.start(80)
+    pwmB.start(80)
 
     # ===== 動作 =====
     print("回転開始")
@@ -146,7 +146,7 @@ def phase1():
     GPIO.output(BIN1, GPIO.LOW)
     GPIO.output(BIN2, GPIO.HIGH)
 
-    time.sleep(5)
+    time.sleep(7)
 
     # ===== 停止 =====
     print("停止")
