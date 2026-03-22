@@ -7,9 +7,7 @@ import csv
 import RPi.GPIO as GPIO
 
 import BNO055
-import BMP085
 from micropyGPS import MicropyGPS
-import motor_thread
 
 # =====================
 # GPIO
@@ -17,7 +15,6 @@ import motor_thread
 TRIG = 23
 ECHO = 24
 HEATING_PIN = 17
-
 # =====================
 # 目標
 # =====================
@@ -28,7 +25,6 @@ TARGET_LNG = 130.959967
 # センサ
 # =====================
 bmx = BNO055.BNO055()
-bmp = BMP085.BMP085()
 
 # =====================
 # 状態
@@ -72,21 +68,6 @@ def get_distance():
     dist = (stop - start) * 34300 / 2
     return dist
 
-# =====================
-# BMP180 平均化
-# =====================
-def get_altitude():
-    values = []
-    for _ in range(5):
-        try:
-            values.append(bmp.read_altitude())
-        except:
-            pass
-        time.sleep(0.03)
-
-    if values:
-        return sum(values) / len(values)
-    return 0
 
 # =====================
 # センサ
@@ -99,7 +80,7 @@ def getBmxData():
 def calcAzimuth():
     global azimuth
     mag = bmx.getMag()
-    azimuth = 90 - math.degrees(math.atan2(mag[1], mag[0]))
+    azimuth = 90 - math.degrees(math.atan2(-mag[0], mag[1]))
     azimuth *= -1
     azimuth %= 360
 
@@ -136,19 +117,14 @@ def phase0():
 
     while True:
         getBmxData()
-        current_alt = get_altitude()
 
         # 落下検知
         if fall > 25:
             fall_count += 1
 
-        # 着地検知（気圧）
-        if current_alt < 5:
-            landed_count += 1
-
-        if fall_count >= 8 and landed_count >= 5:
+        if fall_count >= 8:
             print("着地検知")
-            time.sleep(5)
+            time.sleep(10)
             break
 
         if time.time() - start > 300:
@@ -165,13 +141,22 @@ def phase0():
 def phase1():
     global phase
 
-    print("Phase1: パラ分離")
+    try:
+        print("fire")
+        GPIO.output(HEATING_PIN, GPIO.HIGH)
 
-    GPIO.output(HEATING_PIN, GPIO.HIGH)
-    time.sleep(3)
-    GPIO.output(HEATING_PIN, GPIO.LOW)
+        time.sleep(3)
 
-    phase = 2
+        GPIO.output(HEATING_PIN, GPIO.LOW)
+        print("done")
+
+    except KeyboardInterrupt:
+        print("stopped")
+
+    finally:
+        print("Phase1終了")
+
+        phase = 2
 
 # =====================
 # Phase2（完全）
@@ -183,68 +168,50 @@ def phase2():
     SCAN_STEP = 30
     TURN_SPEED = 400
     ANGLE_TOL = 8
+    PWMA = 18
+    AIN1 = 8
+    AIN2 = 25
+    PWMB = 10
+    BIN1 = 9
+    BIN2 = 11
+
 
     scan_data = []
     start_yaw = get_yaw()
 
     print("Phase2: 回避")
 
-    for i in range(0, 360, SCAN_STEP):
-        target = (start_yaw + i) % 360
+    GPIO.output(AIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.HIGH)
 
-        while True:
-            current = get_yaw()
-            error = (target - current + 540) % 360 - 180
+    # 左前進
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.HIGH)
 
-            if abs(error) < ANGLE_TOL:
-                break
+    time.sleep(5)
 
-            set_direction(TURN_SPEED if error > 0 else -TURN_SPEED)
+    # ===== 停止 =====
+    print("停止")
 
-        set_direction(360)
-        time.sleep(0.2)
+    GPIO.output(AIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.LOW)
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.LOW)
 
-        vals = [get_distance() for _ in range(5)]
-        dist = sum(vals)/len(vals)
+    print("フェーズ2　終了")
 
-        scan_data.append((target, dist))
+    phase = 3
+    return
 
-    best_angle = max(scan_data, key=lambda x: x[1])[0]
-
-    while True:
-        current = get_yaw()
-        error = (best_angle - current + 540) % 360 - 180
-
-        if abs(error) < ANGLE_TOL:
-            break
-
-        set_direction(TURN_SPEED if error > 0 else -TURN_SPEED)
-
-    set_direction(360)
-
-    start = time.time()
-    safe_count = 0
-
-    while True:
-        d = get_distance()
-
-        if d > SAFE_DISTANCE:
-            safe_count += 1
-        else:
-            safe_count = 0
-
-        if safe_count > 5 or time.time() - start > 6:
-            phase = 3
-            return
-
-        set_direction(-360)
-        time.sleep(0.1)
+    
 
 # =====================
 # Phase3（GPS）
 # =====================
 def phase3():
     global phase, direction
+
+    print("フェーズ３　GPS")
 
     if gps_detect == 0:
         direction = 360
@@ -276,6 +243,8 @@ phase4_target = 0
 
 def phase4():
     global phase4_state, phase4_target, direction
+
+    print("フェーズ４　goal")
 
     if phase4_state == "scan":
         data = []
@@ -312,7 +281,7 @@ def phase4():
 def GPS_thread():
     global lat, lng, gps_detect
 
-    s = serial.Serial("/dev/serial0", 115200)
+    s = serial.Serial("/dev/serial0", 9600)
     gps = MicropyGPS(9, "dd")
 
     while True:
@@ -329,22 +298,86 @@ def GPS_thread():
         gps_detect = 1 if lat != 0 else 0
 
 # =====================
-# モータ（ダミー）
+# モータ
 # =====================
 def motor_thread():
-    global direction
+    global motor_enabled
+
+    # ===== ピン設定 =====
+    PWMA = 18
+    AIN1 = 8
+    AIN2 = 25
+    PWMB = 10
+    BIN1 = 9
+    BIN2 = 11
+
+    GPIO.setup(PWMA, GPIO.OUT)
+    GPIO.setup(AIN1, GPIO.OUT)
+    GPIO.setup(AIN2, GPIO.OUT)
+    GPIO.setup(PWMB, GPIO.OUT)
+    GPIO.setup(BIN1, GPIO.OUT)
+    GPIO.setup(BIN2, GPIO.OUT)
+
+    pwmA = GPIO.PWM(PWMA, 50)
+    pwmB = GPIO.PWM(PWMB, 50)
+
+    pwmA.start(80)
+    pwmB.start(80)
+
     while True:
-        print("DIR:", direction)
-        time.sleep(0.1)
+       
+
+        # ===== 停止 =====
+        if direction == 360:
+            GPIO.output(AIN1, 0)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 0)
+            GPIO.output(BIN2, 0)
+
+        # ===== 前進 =====
+        elif direction == -360:
+            GPIO.output(AIN1, 1)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 1)
+            GPIO.output(BIN2, 0)
+
+        # ===== 左回転 =====
+        elif direction == 500:
+            GPIO.output(AIN1, 1)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 0)
+            GPIO.output(BIN2, 1)
+
+        # ===== 右回転 =====
+        elif direction == 600:
+            GPIO.output(AIN1, 0)
+            GPIO.output(AIN2, 1)
+            GPIO.output(BIN1, 1)
+            GPIO.output(BIN2, 0)
+
+        # ===== 微調整（弱回転）=====
+        elif direction > 0:
+            GPIO.output(AIN1, 1)
+            GPIO.output(AIN2, 0)
+            GPIO.output(BIN1, 0)
+            GPIO.output(BIN2, 1)
+
+        elif direction < 0:
+            GPIO.output(AIN1, 0)
+            GPIO.output(AIN2, 1)
+            GPIO.output(BIN1, 1)
+            GPIO.output(BIN2, 0)
+
+        time.sleep(0.05)
 
 # =====================
 # Setup
 # =====================
 def setup():
     GPIO.setmode(GPIO.BCM)
+    GPIO.setup(HEATING_PIN, GPIO.OUT)
     GPIO.setup(TRIG, GPIO.OUT)
     GPIO.setup(ECHO, GPIO.IN)
-    GPIO.setup(HEATING_PIN, GPIO.OUT)
 
     bmx.setUp()
 
