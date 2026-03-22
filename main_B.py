@@ -7,7 +7,6 @@ import csv
 import RPi.GPIO as GPIO
 
 import BNO055
-import BMP085
 import micropyGPS
 
 # =====================
@@ -26,7 +25,6 @@ TARGET_LNG = 130.959967
 # センサ
 # =====================
 bmx = BNO055.BNO055()
-bmp = BMP085.BMP085()
 
 # =====================
 # 状態
@@ -70,21 +68,6 @@ def get_distance():
     dist = (stop - start) * 34300 / 2
     return dist
 
-# =====================
-# BMP180 平均化
-# =====================
-def get_altitude():
-    values = []
-    for _ in range(5):
-        try:
-            values.append(bmp.read_altitude())
-        except:
-            pass
-        time.sleep(0.03)
-
-    if values:
-        return sum(values) / len(values)
-    return 0
 
 # =====================
 # センサ
@@ -436,7 +419,6 @@ def setup():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(TRIG, GPIO.OUT)
     GPIO.setup(ECHO, GPIO.IN)
-    GPIO.setup(HEATING_PIN, GPIO.OUT)
 
     bmx.setUp()
 
