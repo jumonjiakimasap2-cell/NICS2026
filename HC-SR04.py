@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 TRIG = 23
 ECHO = 24
@@ -23,3 +24,6 @@ def get_distance():
 
     duration = end - start
     return duration * 34300 / 2  # cm
+while True:
+    print(get_distance())
+    time.sleep(0.5)
