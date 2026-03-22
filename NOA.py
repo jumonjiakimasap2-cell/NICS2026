@@ -107,11 +107,11 @@ def phase0():
 # Phase1
 # =====================
 def phase1():
-    global phase, motor_enabled
+    global phase,motor_enabled
+    motor_enabled = False
 
     print("Phase1: 特殊動作（右バック・左前進 5秒）")
 
-    motor_enabled = False
     time.sleep(0.1)  # ←超重要（競合防止）
     # ===== モーターピン =====
     PWMA = 18
@@ -156,14 +156,49 @@ def phase1():
     GPIO.output(BIN1, GPIO.LOW)
     GPIO.output(BIN2, GPIO.LOW)
 
-    pwmA.stop()
-    pwmB.stop()
 
     print("Phase1終了")
 
-    motor_enabled = True
-
     phase = 2
+
+def phase2():
+    global phase,motor_enabled
+
+    motor_enabled = False
+
+    print("escape")
+
+    PWMA = 18
+    AIN1 = 8
+    AIN2 = 25
+    PWMB = 10
+    BIN1 = 9
+    BIN2 = 11
+
+    GPIO.output(AIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.HIGH)
+
+    # 左前進
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.HIGH)
+
+    time.sleep(5)
+
+    # ===== 停止 =====
+    print("停止")
+
+    GPIO.output(AIN1, GPIO.LOW)
+    GPIO.output(AIN2, GPIO.LOW)
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.LOW)
+
+    pwmA.stop()
+    pwmB.stop()
+
+    print("Phase2終了")
+
+    
+
 
 def setup():
     GPIO.cleanup()
@@ -264,6 +299,8 @@ def main():
             phase0()
         elif phase == 1:
             phase1()
+        elif phase == 2:
+            phase2()
         time.sleep(0.05)
 
 if __name__ == "__main__":
