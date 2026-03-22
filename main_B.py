@@ -205,7 +205,7 @@ def phase2():
 def phase3():
     global phase, direction
 
-    print(フェーズ３　GPS)
+    print("フェーズ３　GPS")
 
     if gps_detect == 0:
         direction = 360
@@ -238,7 +238,7 @@ phase4_target = 0
 def phase4():
     global phase4_state, phase4_target, direction
 
-    print(フェーズ４　goal)
+    print("フェーズ４　goal")
 
     if phase4_state == "scan":
         data = []
