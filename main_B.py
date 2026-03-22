@@ -194,56 +194,10 @@ def phase2():
 
     print("Phase2: 回避")
 
-    for i in range(0, 360, SCAN_STEP):
-        target = (start_yaw + i) % 360
+    phase = 3
+    return
 
-        while True:
-            current = get_yaw()
-            error = (target - current + 540) % 360 - 180
-
-            if abs(error) < ANGLE_TOL:
-                break
-
-            set_direction(TURN_SPEED if error > 0 else -TURN_SPEED)
-
-        set_direction(360)
-        time.sleep(0.2)
-
-        vals = [get_distance() for _ in range(5)]
-        dist = sum(vals)/len(vals)
-
-        scan_data.append((target, dist))
-
-    best_angle = max(scan_data, key=lambda x: x[1])[0]
-
-    while True:
-        current = get_yaw()
-        error = (best_angle - current + 540) % 360 - 180
-
-        if abs(error) < ANGLE_TOL:
-            break
-
-        set_direction(TURN_SPEED if error > 0 else -TURN_SPEED)
-
-    set_direction(360)
-
-    start = time.time()
-    safe_count = 0
-
-    while True:
-        d = get_distance()
-
-        if d > SAFE_DISTANCE:
-            safe_count += 1
-        else:
-            safe_count = 0
-
-        if safe_count > 5 or time.time() - start > 6:
-            phase = 3
-            return
-
-        set_direction(-360)
-        time.sleep(0.1)
+    
 
 # =====================
 # Phase3（GPS）
