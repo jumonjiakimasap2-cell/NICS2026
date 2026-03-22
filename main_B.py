@@ -117,7 +117,6 @@ def phase0():
 
     while True:
         getBmxData()
-        current_alt = get_altitude()
 
         # 落下検知
         if fall > 25:
