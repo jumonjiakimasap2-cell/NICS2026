@@ -80,7 +80,7 @@ def getBmxData():
 def calcAzimuth():
     global azimuth
     mag = bmx.getMag()
-    azimuth = 90 - math.degrees(math.atan2(mag[1], mag[0]))
+    azimuth = 90 - math.degrees(math.atan2(-mag[0], mag[1]))
     azimuth *= -1
     azimuth %= 360
 
