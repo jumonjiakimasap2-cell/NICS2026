@@ -173,8 +173,6 @@ def phase1():
     GPIO.output(BIN1, GPIO.LOW)
     GPIO.output(BIN2, GPIO.LOW)
 
-    pwmA.stop()
-    pwmB.stop()
 
     print("Phase1終了")
 
