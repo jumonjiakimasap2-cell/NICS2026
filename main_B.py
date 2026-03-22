@@ -124,7 +124,7 @@ def phase0():
 
         if fall_count >= 8:
             print("着地検知")
-            time.sleep(5)
+            time.sleep(10)
             break
 
         if time.time() - start > 300:
