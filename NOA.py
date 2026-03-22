@@ -92,7 +92,7 @@ def phase0():
 
         if fall_count >= 8:
             print("着地検知")
-            time.sleep(5)
+            time.sleep(10)
             break
 
         if time.time() - start > 300:
@@ -132,19 +132,19 @@ def phase1():
     pwmA = GPIO.PWM(PWMA, 50)
     pwmB = GPIO.PWM(PWMB, 50)
 
-    pwmA.start(70)
-    pwmB.start(70)
+    pwmA.start(100)
+    pwmB.start(100)
 
     # ===== 動作 =====
     print("回転開始")
 
     # 右バック
-    GPIO.output(AIN1, GPIO.LOW)
-    GPIO.output(AIN2, GPIO.HIGH)
+    GPIO.output(AIN1, GPIO.HIGH)
+    GPIO.output(AIN2, GPIO.LOW)
 
     # 左前進
-    GPIO.output(BIN1, GPIO.HIGH)
-    GPIO.output(BIN2, GPIO.LOW)
+    GPIO.output(BIN1, GPIO.LOW)
+    GPIO.output(BIN2, GPIO.HIGH)
 
     time.sleep(5)
 
